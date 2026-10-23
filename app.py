@@ -4,6 +4,8 @@ from book_repository import BookRepository
 from book import Book
 from user import User
 from user_repository import UserRepository
+from film import Film
+from film_repository import FilmRepository
 # instantiate a Flask app object
 app = Flask(__name__)
 app.secret_key = "some_really_secret_key"
@@ -84,6 +86,22 @@ def create_session():
     else:
         return redirect("/sessions/new")
 
+@app.route('/films', methods=['GET'])
+def get_all_films():
+    connection = DatabaseConnection()
+    connection.connect()
+    film_repository = FilmRepository(connection)
+    films = film_repository.all()
+    return render_template("films.html", films=films)
+
+@app.route("/films", methods=["POST"])
+def create_film():
+    connection = DatabaseConnection()
+    connection.connect()
+    film_repository = FilmRepository(connection)
+    film = Film(title=request.form["title"], director=request.form["director"])
+    film_repository.create(film)
+    return redirect("/films")
 
 # make the server run in response to `python app.py`
 # on port 5001 (you'll learn more about what this means later)
